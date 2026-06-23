@@ -1,0 +1,15 @@
+de\hospital\triagedashboard\controller\TriageController.class
+de\hospital\triagedashboard\dto\PatientRequestDto$PatientRequestDtoBuilder.class
+de\hospital\triagedashboard\config\WebSocketConfig.class
+de\hospital\triagedashboard\dto\PatientRequestDto.class
+de\hospital\triagedashboard\TriageDashboardApplication.class
+de\hospital\triagedashboard\dto\PatientResponseDto$PatientResponseDtoBuilder.class
+de\hospital\triagedashboard\dto\PatientResponseDto.class
+de\hospital\triagedashboard\repository\PatientCaseRepository.class
+de\hospital\triagedashboard\mapper\PatientMapperImpl.class
+de\hospital\triagedashboard\controller\GlobalExceptionHandler.class
+de\hospital\triagedashboard\model\TriageLevel.class
+de\hospital\triagedashboard\service\TriageQueueService.class
+de\hospital\triagedashboard\model\PatientCase$PatientCaseBuilder.class
+de\hospital\triagedashboard\model\PatientCase.class
+de\hospital\triagedashboard\mapper\PatientMapper.class

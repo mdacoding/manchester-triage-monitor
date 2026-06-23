@@ -1,0 +1,126 @@
+package de.hospital.triagedashboard.service;
+
+import de.hospital.triagedashboard.model.PatientCase;
+import de.hospital.triagedashboard.model.TriageLevel;
+import de.hospital.triagedashboard.repository.PatientCaseRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
+/**
+ * Kerngeschäftslogik für die Triage-Warteliste der Notaufnahme.
+ *
+ * Implementiert das Manchester-Triage-System (MTS):
+ *   – Patienten werden nach Dringlichkeitsstufe und Ankunftszeit geordnet.
+ *   – Eine Verschlechterung des Zustands (Re-Triage) kann jederzeit
+ *     registriert werden; der Patient rückt dann automatisch vor.
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class TriageQueueService {
+
+    private final PatientCaseRepository patientCaseRepository;
+
+    /**
+     * Nimmt einen neuen Patientenfall auf und berechnet automatisch:
+     *   1. Die Ankunftszeit (aktueller Zeitstempel)
+     *   2. Die geschätzte maximale Behandlungszeit gemäß MTS-Vorgabe
+     *
+     * @param patientCase Vorbefüllte Entität mit Name, Triagestufe und Symptomen
+     * @return Gespeicherter Patientenfall mit gesetzter ID und Zeitstempeln
+     */
+    @Transactional
+    public PatientCase addPatientToQueue(PatientCase patientCase) {
+        LocalDateTime now = LocalDateTime.now();
+        patientCase.setAdmissionTime(now);
+
+        // Geschätzte Behandlungszeit = Ankunft + klinisch definierte Maximalwartezeit der Triagestufe
+        int maxWaitingMinutes = patientCase.getTriageLevel().getMaxWaitingTimeMinutes();
+        patientCase.setEstimatedTreatmentTime(now.plusMinutes(maxWaitingMinutes));
+
+        PatientCase savedCase = patientCaseRepository.save(patientCase);
+        log.info("Neuer Patientenfall aufgenommen: id={}, name='{}', triage={}, estimatedTreatment={}",
+                savedCase.getId(),
+                savedCase.getPatientName(),
+                savedCase.getTriageLevel(),
+                savedCase.getEstimatedTreatmentTime());
+        return savedCase;
+    }
+
+    /**
+     * Liefert die komplette, klinisch priorisierte Warteliste aller aktiven Fälle.
+     *
+     * Sortierkriterien (streng hierarchisch):
+     *   1. TriageLevel aufsteigend nach Ordinal (RED zuerst, BLUE zuletzt)
+     *   2. AdmissionTime aufsteigend (FIFO bei gleicher Triagestufe)
+     *
+     * @return Geordnete Liste aktiver Patientenfälle; leer, wenn keine Fälle vorliegen
+     */
+    @Transactional(readOnly = true)
+    public List<PatientCase> getSortedQueue() {
+        return patientCaseRepository.findAllActiveOrderByTriageLevelAndAdmissionTime();
+    }
+
+    /**
+     * Aktualisiert die Triagestufe eines bestehenden Falls (Re-Triage).
+     *
+     * Klinischer Hintergrund: Der Zustand eines Patienten kann sich in der
+     * Wartezeit verschlechtern (z. B. von YELLOW zu RED). Die Behandlungszeit
+     * wird in diesem Fall neu berechnet, damit keine klinischen Fristen verletzt
+     * werden.
+     *
+     * @param caseId   UUID des zu aktualisierenden Patientenfalls
+     * @param newLevel Neue, klinisch festgestellte Triagestufe
+     * @return Aktualisierter Patientenfall
+     * @throws NoSuchElementException Wenn kein Fall mit der angegebenen ID existiert
+     */
+    @Transactional
+    public PatientCase updateTriageLevel(UUID caseId, TriageLevel newLevel) {
+        PatientCase existingCase = patientCaseRepository.findById(caseId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Patientenfall nicht gefunden: id=" + caseId));
+
+        TriageLevel previousLevel = existingCase.getTriageLevel();
+        existingCase.setTriageLevel(newLevel);
+
+        // Behandlungszeit neu berechnen – Ausgangspunkt bleibt die ursprüngliche Ankunftszeit
+        existingCase.setEstimatedTreatmentTime(
+                existingCase.getAdmissionTime().plusMinutes(newLevel.getMaxWaitingTimeMinutes()));
+
+        PatientCase updatedCase = patientCaseRepository.save(existingCase);
+        log.info("Re-Triage: id={}, name='{}', {} -> {}, neue Behandlungszeit={}",
+                updatedCase.getId(),
+                updatedCase.getPatientName(),
+                previousLevel,
+                newLevel,
+                updatedCase.getEstimatedTreatmentTime());
+        return updatedCase;
+    }
+
+    /**
+     * Archiviert einen Patientenfall (Entlassung, Verlegung oder Tod).
+     * Archivierte Fälle werden aus der aktiven Warteliste entfernt,
+     * bleiben aber für Auditzwecke in der Datenbank erhalten.
+     *
+     * @param caseId UUID des abzuschließenden Patientenfalls
+     * @throws NoSuchElementException Wenn kein Fall mit der angegebenen ID existiert
+     */
+    @Transactional
+    public void archivePatientCase(UUID caseId) {
+        PatientCase existingCase = patientCaseRepository.findById(caseId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Patientenfall nicht gefunden: id=" + caseId));
+
+        existingCase.setArchived(true);
+        patientCaseRepository.save(existingCase);
+        log.info("Patientenfall archiviert: id={}, name='{}'",
+                existingCase.getId(), existingCase.getPatientName());
+    }
+}
