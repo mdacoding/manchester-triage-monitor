@@ -41,15 +41,21 @@ export function PatientFormModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-xl shadow-black/10 relative animate-in zoom-in-95 duration-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="patient-form-title"
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto p-6 bg-white rounded-2xl shadow-xl shadow-black/10 relative animate-in zoom-in-95 duration-200"
+      >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 transition-colors"
+          aria-label="Schließen"
+          className="absolute top-4 right-4 text-stone-500 hover:text-stone-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40 rounded"
         >
           ✕
         </button>
         
-        <h2 className="text-lg font-bold text-stone-900 mb-1">Neuer Patient</h2>
+        <h2 id="patient-form-title" className="text-lg font-bold text-stone-900 mb-1">Neuer Patient</h2>
         <p className="text-sm text-stone-500 mb-5">
           Erfassen Sie hier die Daten zur initialen Triage.
         </p>
@@ -99,18 +105,18 @@ export function PatientFormModal({ isOpen, onClose }) {
             />
           </div>
 
-          <div className="flex justify-end gap-3 mt-2">
+          <div className="flex flex-wrap justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40 rounded-lg"
             >
               Abbrechen
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 disabled:opacity-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 active:bg-stone-950 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40 focus-visible:ring-offset-2"
             >
               {isSubmitting ? 'Speichere...' : 'Patient aufnehmen'}
             </button>
