@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -58,14 +59,24 @@ public class TriageQueueService {
      * Liefert die komplette, klinisch priorisierte Warteliste aller aktiven Fälle.
      *
      * Sortierkriterien (streng hierarchisch):
-     *   1. TriageLevel aufsteigend nach Ordinal (RED zuerst, BLUE zuletzt)
+     *   1. TriageLevel aufsteigend nach Ordinal (RED = 0 zuerst, BLUE = 4 zuletzt)
      *   2. AdmissionTime aufsteigend (FIFO bei gleicher Triagestufe)
+     *
+     * Die Sortierung nach Triagestufe erfolgt bewusst in Java über
+     * {@link TriageLevel#compareTo}, NICHT per Datenbank-ORDER-BY: Da
+     * {@code triageLevel} als String persistiert wird (siehe {@link PatientCase}),
+     * würde eine SQL-seitige Sortierung alphabetisch statt nach klinischer
+     * Dringlichkeit erfolgen (z. B. GREEN vor RED) – ein patientensicherheits-
+     * kritischer Fehler.
      *
      * @return Geordnete Liste aktiver Patientenfälle; leer, wenn keine Fälle vorliegen
      */
     @Transactional(readOnly = true)
     public List<PatientCase> getSortedQueue() {
-        return patientCaseRepository.findAllActiveOrderByTriageLevelAndAdmissionTime();
+        return patientCaseRepository.findAllActiveOrderByAdmissionTime().stream()
+                .sorted(Comparator.comparing(PatientCase::getTriageLevel)
+                        .thenComparing(PatientCase::getAdmissionTime))
+                .toList();
     }
 
     /**

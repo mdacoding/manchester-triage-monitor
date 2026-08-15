@@ -97,6 +97,40 @@ class TriageQueueServiceIntegrationTest {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // Regressionstest: Sortierung darf NICHT alphabetisch nach Enum-Namen
+    // erfolgen (BLUE, GREEN, ORANGE, RED, YELLOW), sondern nach klinischer
+    // Dringlichkeit (RED, ORANGE, YELLOW, GREEN, BLUE). Da TriageLevel als
+    // String persistiert wird, würde eine naive DB-ORDER-BY-Sortierung genau
+    // diesen Fehler produzieren (siehe TriageQueueService.getSortedQueue()).
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("Warteliste sortiert nach klinischer Dringlichkeit, nicht alphabetisch nach Enum-Namen")
+    void getSortedQueue_ordersByClinicalUrgency_notAlphabetically() {
+        // Bewusste Einfügereihenfolge, die bei alphabetischer Sortierung
+        // (BLUE < GREEN < ORANGE < RED < YELLOW) ein falsches Ergebnis ergäbe.
+        triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Gustav Gruen").triageLevel(TriageLevel.GREEN).symptoms("Leichte Beschwerden").build());
+        triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Otto Orange").triageLevel(TriageLevel.ORANGE).symptoms("Sehr dringend").build());
+        triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Rudi Rot").triageLevel(TriageLevel.RED).symptoms("Lebensgefahr").build());
+        triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Berta Blau").triageLevel(TriageLevel.BLUE).symptoms("Nicht dringend").build());
+        triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Yvonne Gelb").triageLevel(TriageLevel.YELLOW).symptoms("Dringend").build());
+
+        List<PatientCase> sortedQueue = triageQueueService.getSortedQueue();
+
+        assertThat(sortedQueue)
+                .as("Reihenfolge muss RED, ORANGE, YELLOW, GREEN, BLUE sein (klinische Dringlichkeit)")
+                .extracting(PatientCase::getTriageLevel)
+                .containsExactly(
+                        TriageLevel.RED, TriageLevel.ORANGE, TriageLevel.YELLOW,
+                        TriageLevel.GREEN, TriageLevel.BLUE);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // FIFO-Reihenfolge bei identischer Triagestufe
     // ─────────────────────────────────────────────────────────────────────────
 

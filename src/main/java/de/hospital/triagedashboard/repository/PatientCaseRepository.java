@@ -12,21 +12,24 @@ import java.util.UUID;
 /**
  * Spring Data JPA Repository für {@link PatientCase}-Entitäten.
  *
- * Die komplexe Sortierlogik (Triagestufe → FIFO) wird über eine
- * JPQL-Abfrage implementiert, da die Ordinal-Reihenfolge des Enums
- * direkt der klinischen Priorität entspricht.
+ * WICHTIG: Die finale klinische Sortierung (Triagestufe → FIFO) erfolgt
+ * bewusst NICHT hier per JPQL "ORDER BY p.triageLevel", da {@code triageLevel}
+ * mit {@code @Enumerated(EnumType.STRING)} gespeichert wird – eine
+ * datenbankseitige Sortierung nach dieser Spalte wäre alphabetisch
+ * (BLUE, GREEN, ORANGE, RED, YELLOW) und nicht nach klinischer Dringlichkeit!
+ * Die korrekte Sortierung nach Enum-Ordinal erfolgt daher in
+ * {@link de.hospital.triagedashboard.service.TriageQueueService#getSortedQueue()}.
  */
 @Repository
 public interface PatientCaseRepository extends JpaRepository<PatientCase, UUID> {
 
     /**
-     * Liefert alle aktiven (nicht archivierten) Fälle in der korrekten
-     * klinischen Behandlungsreihenfolge:
-     *   1. Triagestufe aufsteigend nach Ordinal (RED = 0 zuerst)
-     *   2. Bei gleicher Stufe: älteste Ankunftszeit zuerst (FIFO)
+     * Liefert alle aktiven (nicht archivierten) Fälle, vorsortiert nach
+     * Ankunftszeit (FIFO) als stabile Basis für die anschließende
+     * Priorisierung nach Triagestufe im Service.
      */
-    @Query("SELECT p FROM PatientCase p WHERE p.isArchived = false ORDER BY p.triageLevel ASC, p.admissionTime ASC")
-    List<PatientCase> findAllActiveOrderByTriageLevelAndAdmissionTime();
+    @Query("SELECT p FROM PatientCase p WHERE p.isArchived = false ORDER BY p.admissionTime ASC")
+    List<PatientCase> findAllActiveOrderByAdmissionTime();
 
     /**
      * Zählt aktive Fälle einer bestimmten Triagestufe – nützlich für
