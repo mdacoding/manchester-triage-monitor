@@ -27,7 +27,16 @@ public interface PatientMapper {
 
     /**
      * Mappt die JPA-Entity auf das Response-DTO zur API-Auslieferung.
+     *
+     * Die explizite {@code isArchived}-Zuordnung ist notwendig, weil Lomboks
+     * generierte Builder-Methode für das boolesche Feld {@code isArchived}
+     * wörtlich "isArchived" heißt, waehrend die per JavaBean-Konvention aus
+     * dem Getter {@code isArchived()} abgeleitete Property "archived" lautet.
+     * Ohne diese Annotation findet MapStruct keine automatische Übereinstimmung
+     * und das Feld bliebe stets auf dem Default-Wert {@code false} stehen –
+     * unabhängig vom tatsächlichen Archivierungsstatus.
      */
+    @Mapping(target = "isArchived", source = "archived")
     PatientResponseDto toDto(PatientCase entity);
 
     /**
