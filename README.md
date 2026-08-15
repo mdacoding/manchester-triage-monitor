@@ -4,7 +4,7 @@ Echtzeit-Dashboard für die Notaufnahme, das Patient:innen nach dem **Manchester
 
 Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-Push, JWT-Auth und PostgreSQL, **React 19 / Vite / Tailwind** Frontend.
 
-[![CI](https://github.com/<github-user>/<repo-name>/actions/workflows/ci.yml/badge.svg)](https://github.com/<github-user>/<repo-name>/actions/workflows/ci.yml)
+[![CI](https://github.com/mdacoding/manchester-triage-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/mdacoding/manchester-triage-monitor/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-brightgreen)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
@@ -125,8 +125,8 @@ flowchart LR
 ### 1. Repository klonen
 
 ```bash
-git clone https://github.com/<github-user>/<repo-name>.git
-cd <repo-name>
+git clone https://github.com/mdacoding/manchester-triage-monitor.git
+cd manchester-triage-monitor
 ```
 
 ### 2. Datenbank starten
