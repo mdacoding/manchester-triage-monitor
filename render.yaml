@@ -1,0 +1,31 @@
+# Render Blueprint fuer das Backend (kostenloser "Free"-Plan).
+#
+# Bewusst OHNE Render-managed Postgres, da Render's kostenlose Postgres-
+# Instanzen nach 30 Tagen ablaufen. Empfehlung: eine dauerhaft kostenlose
+# Postgres-Datenbank bei https://neon.tech anlegen und deren Connection-
+# String als DATABASE_URL-Umgebungsvariable unten (im Render-Dashboard,
+# nicht hier im Klartext) hinterlegen.
+#
+# Anwenden: Render-Dashboard -> "New" -> "Blueprint" -> dieses Repo waehlen.
+services:
+  - type: web
+    name: triage-dashboard-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false # im Render-Dashboard setzen, z. B. jdbc:postgresql://<neon-host>/<db>?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true # Render generiert automatisch einen zufaelligen 256-bit-Wert
+      - key: DEMO_STAFF_PASSWORD
+        sync: false
+      - key: DEMO_ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false # z. B. https://triage-dashboard.vercel.app
