@@ -5,8 +5,14 @@ import { ConnectionIndicator }  from '../components/ConnectionIndicator'
 import { TriageSummaryBar }     from '../components/TriageSummaryBar'
 import { ErrorBoundary }        from '../components/ErrorBoundary'
 import { PatientFormModal }     from '../components/PatientFormModal'
+import { PatientHistory }       from './PatientHistory'
 import { useAuth }              from '../hooks/useAuth'
 import { apiFetch }             from '../utils/apiClient'
+
+const VIEWS = {
+  QUEUE:   'queue',
+  HISTORY: 'history',
+}
 
 /**
  * TriageDashboard
@@ -30,6 +36,7 @@ export function TriageDashboard() {
   const [displayQueue, setDisplayQueue]      = useState([])
   const [lastUpdated, setLastUpdated]        = useState(null)
   const [isModalOpen, setIsModalOpen]        = useState(false)
+  const [activeView, setActiveView]          = useState(VIEWS.QUEUE)
   // True until the first data (REST or WebSocket) has arrived — drives the
   // skeleton loader so the queue never flashes an empty/"no patients" state
   // just because the network hasn't responded yet.
@@ -115,50 +122,96 @@ export function TriageDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Tab navigation: switch between active queue and archive/history */}
+        <nav
+          className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center gap-1 -mt-1 pb-3"
+          role="tablist"
+          aria-label="Ansicht wählen"
+        >
+          <ViewTabButton
+            label="Warteliste"
+            isActive={activeView === VIEWS.QUEUE}
+            onClick={() => setActiveView(VIEWS.QUEUE)}
+          />
+          <ViewTabButton
+            label="Historie"
+            isActive={activeView === VIEWS.HISTORY}
+            onClick={() => setActiveView(VIEWS.HISTORY)}
+          />
+        </nav>
       </header>
 
       {/* ── Page body ───────────────────────────────────────────────────── */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        {activeView === VIEWS.QUEUE ? (
+          <>
+            {/* Summary bar */}
+            <section aria-label="Triage-Übersicht">
+              <TriageSummaryBar queue={displayQueue} />
+            </section>
 
-        {/* Summary bar */}
-        <section aria-label="Triage-Übersicht">
-          <TriageSummaryBar queue={displayQueue} />
-        </section>
+            {/* Queue heading */}
+            <section aria-label="Warteliste">
+              <div className="flex items-baseline justify-between mb-4">
+                <h2 className="text-[13px] font-semibold text-stone-500 uppercase tracking-widest">
+                  Warteliste
+                </h2>
+                {!isInitialLoading && (
+                  <span className="text-[13px] text-stone-500 tabular-nums">
+                    {displayQueue.length} {displayQueue.length === 1 ? 'Patient' : 'Patienten'}
+                  </span>
+                )}
+              </div>
 
-        {/* Queue heading */}
-        <section aria-label="Warteliste">
-          <div className="flex items-baseline justify-between mb-4">
-            <h2 className="text-[13px] font-semibold text-stone-500 uppercase tracking-widest">
-              Warteliste
-            </h2>
-            {!isInitialLoading && (
-              <span className="text-[13px] text-stone-500 tabular-nums">
-                {displayQueue.length} {displayQueue.length === 1 ? 'Patient' : 'Patienten'}
-              </span>
-            )}
-          </div>
-
-          {/* Patient list */}
+              {/* Patient list */}
+              <ErrorBoundary>
+                {isInitialLoading ? (
+                  <QueueSkeleton />
+                ) : displayQueue.length === 0 ? (
+                  <EmptyQueuePlaceholder />
+                ) : (
+                  <ol className="space-y-3">
+                    {displayQueue.map((patient, index) => (
+                      <li key={patient.id} className="transition-all duration-300 ease-out">
+                        <PatientCard patient={patient} position={index + 1} />
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </ErrorBoundary>
+            </section>
+          </>
+        ) : (
           <ErrorBoundary>
-            {isInitialLoading ? (
-              <QueueSkeleton />
-            ) : displayQueue.length === 0 ? (
-              <EmptyQueuePlaceholder />
-            ) : (
-              <ol className="space-y-3">
-                {displayQueue.map((patient, index) => (
-                  <li key={patient.id} className="transition-all duration-300 ease-out">
-                    <PatientCard patient={patient} position={index + 1} />
-                  </li>
-                ))}
-              </ol>
-            )}
+            <PatientHistory />
           </ErrorBoundary>
-        </section>
+        )}
       </main>
 
       <PatientFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
+  )
+}
+
+// ── Sub-component: view tab button ──────────────────────────────────────────
+
+function ViewTabButton({ label, isActive, onClick }) {
+  return (
+    <button
+      role="tab"
+      aria-selected={isActive}
+      onClick={onClick}
+      className={[
+        'text-[13px] font-medium px-3 py-1.5 rounded-lg transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAFAF7]',
+        isActive
+          ? 'bg-stone-900 text-white'
+          : 'text-stone-500 hover:text-stone-800 hover:bg-stone-100',
+      ].join(' ')}
+    >
+      {label}
+    </button>
   )
 }
 

@@ -72,6 +72,7 @@ Die App sortiert die Warteliste **streng nach klinischer Dringlichkeit** (Triage
 - **Echtzeit-Warteliste** – neue Patient:innen, Re-Triagen und Entlassungen werden per WebSocket (STOMP/SockJS) sofort an alle offenen Dashboards gepusht, kein Polling.
 - **Klinisch korrekte Priorisierung** – Sortierung nach Triagestufe + Ankunftszeit, inkl. automatisch berechneter Ziel-Behandlungszeit je Stufe.
 - **Re-Triage** – Verschlechtert sich der Zustand einer Patientin, kann die Stufe jederzeit angehoben werden; die Zielzeit wird neu berechnet und die Person rückt in der Liste vor.
+- **Patientenhistorie / Archiv-Ansicht** – archivierte (entlassene/verlegte) Fälle verschwinden aus der aktiven Warteliste, bleiben aber über `GET /api/triage/history` einsehbar: paginiert, neueste Archivierung zuerst, optional filterbar nach Triagestufe (`?triageLevel=`). Im Frontend per eigenem "Historie"-Tab neben der Warteliste.
 - **Authentifizierung & Rollen** – JWT-basiertes Login (`STAFF` / `ADMIN`), REST- **und** WebSocket-Verbindungen sind geschützt.
 - **Live-Verbindungsstatus** – sichtbare Anzeige, ob die WebSocket-Verbindung aktiv ist (`ConnectionIndicator`).
 - **API-Dokumentation** – interaktives Swagger UI unter `/swagger-ui.html`.
