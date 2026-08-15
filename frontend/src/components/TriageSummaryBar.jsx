@@ -23,7 +23,7 @@ export function TriageSummaryBar({ queue }) {
         return (
           <div
             key={level}
-            className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-[0_1px_6px_rgba(0,0,0,0.05)]"
+            className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-[0_1px_6px_rgba(0,0,0,0.05)] transition-shadow duration-300 hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
           >
             <span className={`w-2 h-2 rounded-full ${config.dotColor}`} />
             <span className="text-[11px] font-medium text-stone-500">{config.label}</span>
