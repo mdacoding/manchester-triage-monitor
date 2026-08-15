@@ -5,6 +5,8 @@ import { ConnectionIndicator }  from '../components/ConnectionIndicator'
 import { TriageSummaryBar }     from '../components/TriageSummaryBar'
 import { ErrorBoundary }        from '../components/ErrorBoundary'
 import { PatientFormModal }     from '../components/PatientFormModal'
+import { useAuth }              from '../hooks/useAuth'
+import { apiFetch }             from '../utils/apiClient'
 
 /**
  * TriageDashboard
@@ -23,14 +25,17 @@ import { PatientFormModal }     from '../components/PatientFormModal'
  *   └──────────────────────────────────────────────┘
  */
 export function TriageDashboard() {
-  const { queue: wsQueue, connectionStatus } = useTriageWebSocket()
+  const { auth, logout }                     = useAuth()
+  const { queue: wsQueue, connectionStatus } = useTriageWebSocket(auth?.token)
   const [displayQueue, setDisplayQueue]      = useState([])
   const [lastUpdated, setLastUpdated]        = useState(null)
   const [isModalOpen, setIsModalOpen]        = useState(false)
 
   // ── Initial REST fetch ───────────────────────────────────────────────────
+  // One-off fetch on mount to bridge the gap before the WebSocket delivers its
+  // first push — not a store subscription, so setState here is intentional.
   useEffect(() => {
-    fetch('/api/triage/queue')
+    apiFetch('/api/triage/queue')
       .then((res) => res.json())
       .then((data) => {
         setDisplayQueue(data)
@@ -40,8 +45,10 @@ export function TriageDashboard() {
   }, [])
 
   // ── Live WebSocket updates ───────────────────────────────────────────────
+  // Mirrors the external WebSocket store (wsQueue) into local display state.
   useEffect(() => {
     if (wsQueue.length > 0 || connectionStatus === ConnectionStatus.CONNECTED) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- mirrors the external WS store into local state
       setDisplayQueue(wsQueue)
       setLastUpdated(new Date())
     }
@@ -85,6 +92,17 @@ export function TriageDashboard() {
               </span>
             )}
             <ConnectionIndicator status={connectionStatus} />
+            <div className="flex items-center gap-2 pl-4 border-l border-stone-200">
+              <span className="hidden sm:block text-[11px] text-stone-500">
+                {auth?.username} · {auth?.role}
+              </span>
+              <button
+                onClick={logout}
+                className="text-[11px] font-medium text-stone-400 hover:text-stone-700 hover:bg-stone-100 px-2 py-1 rounded transition-colors"
+              >
+                Abmelden
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -109,19 +127,23 @@ export function TriageDashboard() {
           </div>
 
           {/* Patient list */}
-          {displayQueue.length === 0 ? (
-            <EmptyQueuePlaceholder connectionStatus={connectionStatus} />
-          ) : (
-            <ol className="space-y-3">
-              {displayQueue.map((patient, index) => (
-                <li key={patient.id}>
-                  <PatientCard patient={patient} position={index + 1} />
-                </li>
-              ))}
-            </ol>
-          )}
+          <ErrorBoundary>
+            {displayQueue.length === 0 ? (
+              <EmptyQueuePlaceholder connectionStatus={connectionStatus} />
+            ) : (
+              <ol className="space-y-3">
+                {displayQueue.map((patient, index) => (
+                  <li key={patient.id}>
+                    <PatientCard patient={patient} position={index + 1} />
+                  </li>
+                ))}
+              </ol>
+            )}
+          </ErrorBoundary>
         </section>
       </main>
+
+      <PatientFormModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   )
 }

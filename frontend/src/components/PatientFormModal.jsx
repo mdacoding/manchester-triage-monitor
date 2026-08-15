@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiFetch } from '../utils/apiClient'
 
 export function PatientFormModal({ isOpen, onClose }) {
   const [patientName, setPatientName] = useState('')
@@ -15,7 +16,7 @@ export function PatientFormModal({ isOpen, onClose }) {
     setErrorMsg(null)
 
     try {
-      const res = await fetch('/api/triage/patient', {
+      const res = await apiFetch('/api/triage/patient', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ patientName, triageLevel, symptoms }),

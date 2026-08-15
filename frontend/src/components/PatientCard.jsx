@@ -1,5 +1,6 @@
 import { TRIAGE_CONFIG } from '../config/triageConfig'
 import { formatTime, formatWaitingTime } from '../utils/timeUtils'
+import { apiFetch } from '../utils/apiClient'
 
 /**
  * PatientCard
@@ -82,7 +83,7 @@ export function PatientCard({ patient, position }) {
           <button
             onClick={() => {
               if (window.confirm(`${patient.patientName} wirklich entlassen / archivieren?`)) {
-                fetch(`/api/triage/patient/${patient.id}/archive`, { method: 'PATCH' })
+                apiFetch(`/api/triage/patient/${patient.id}/archive`, { method: 'PATCH' })
                   .catch(err => console.error("Error archiving patient", err));
               }
             }}

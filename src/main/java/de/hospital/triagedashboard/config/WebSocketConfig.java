@@ -1,6 +1,9 @@
 package de.hospital.triagedashboard.config;
 
+import de.hospital.triagedashboard.security.StompAuthChannelInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -15,12 +18,18 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  *   Server → Client : Der Simple Broker verteilt Nachrichten an alle
  *                     Abonnenten eines "/topic/..."-Pfads (Pub/Sub).
  *
- * CORS: setAllowedOriginPatterns("*") ist für die Entwicklungsphase gesetzt.
- * In der Produktion durch konkrete Frontend-Ursprünge ersetzen.
+ * Authentifizierung: {@link StompAuthChannelInterceptor} prüft bei jedem
+ * CONNECT-Frame das mitgesendete JWT (siehe dort).
+ *
+ * CORS: setAllowedOriginPatterns wird über {@code app.cors.allowed-origins}
+ * konfiguriert (Default: lokale Vite-Dev-Origin).
  */
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
 
     /**
      * Aktiviert den In-Memory Simple Broker für das /topic-Präfix.
@@ -42,5 +51,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-triage")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+    }
+
+    /**
+     * Hängt die JWT-Prüfung in die eingehende Nachrichten-Pipeline ein,
+     * bevor CONNECT-Frames verarbeitet werden.
+     */
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(stompAuthChannelInterceptor);
     }
 }

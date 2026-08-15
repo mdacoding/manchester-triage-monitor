@@ -2,6 +2,7 @@ package de.hospital.triagedashboard.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +43,14 @@ public class GlobalExceptionHandler {
                 ));
 
         problemDetail.setProperty("errors", errors);
+        return problemDetail;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Benutzername oder Passwort ist ungültig.");
+        problemDetail.setTitle("Anmeldung fehlgeschlagen");
+        problemDetail.setType(URI.create("https://api.hospital.de/errors/unauthorized"));
         return problemDetail;
     }
 
