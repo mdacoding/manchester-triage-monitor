@@ -16,6 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +31,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,6 +84,39 @@ class TriageControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[0].patientName").value("Test Patient"))
                 .andExpect(jsonPath("$[0].triageLevel").value("RED"));
+    }
+
+    @Test
+    @DisplayName("GET /history gibt paginierte archivierte Faelle als JSON zurück")
+    void getArchivedHistory_returnsPaginatedArchivedCases() throws Exception {
+        PatientCase archivedCase = buildMockPatientCase(TriageLevel.BLUE);
+        archivedCase.setArchived(true);
+        archivedCase.setArchivedAt(LocalDateTime.now());
+        PatientResponseDto dto = buildMockPatientResponseDto(TriageLevel.BLUE);
+
+        Page<PatientCase> mockPage = new PageImpl<>(List.of(archivedCase), PageRequest.of(0, 20), 1);
+
+        when(triageQueueService.getArchivedHistory(any(Pageable.class), isNull())).thenReturn(mockPage);
+        when(patientMapper.toDto(any(PatientCase.class))).thenReturn(dto);
+
+        mockMvc.perform(get("/api/triage/history"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].patientName").value("Test Patient"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    @DisplayName("GET /history mit triageLevel-Parameter filtert im Service nach dieser Stufe")
+    void getArchivedHistory_passesTriageLevelFilter_toService() throws Exception {
+        Page<PatientCase> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+        when(triageQueueService.getArchivedHistory(any(Pageable.class), eq(TriageLevel.RED))).thenReturn(emptyPage);
+
+        mockMvc.perform(get("/api/triage/history").param("triageLevel", "RED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+
+        verify(triageQueueService).getArchivedHistory(any(Pageable.class), eq(TriageLevel.RED));
     }
 
     @Test

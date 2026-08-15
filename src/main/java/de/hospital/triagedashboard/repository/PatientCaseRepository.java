@@ -2,6 +2,8 @@ package de.hospital.triagedashboard.repository;
 
 import de.hospital.triagedashboard.model.PatientCase;
 import de.hospital.triagedashboard.model.TriageLevel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -36,4 +38,17 @@ public interface PatientCaseRepository extends JpaRepository<PatientCase, UUID> 
      * Kapazitäts- und Auslastungsübersichten auf dem Dashboard.
      */
     long countByTriageLevelAndIsArchivedFalse(TriageLevel triageLevel);
+
+    /**
+     * Liefert alle archivierten Fälle für die Historien-Ansicht, paginiert
+     * und nach Archivierungszeitpunkt absteigend (neueste zuerst) sortiert.
+     */
+    Page<PatientCase> findByIsArchivedTrueOrderByArchivedAtDesc(Pageable pageable);
+
+    /**
+     * Wie {@link #findByIsArchivedTrueOrderByArchivedAtDesc(Pageable)}, zusätzlich
+     * gefiltert auf eine einzelne Triagestufe (Query-Parameter {@code triageLevel}
+     * im Historien-Endpunkt).
+     */
+    Page<PatientCase> findByIsArchivedTrueAndTriageLevelOrderByArchivedAtDesc(TriageLevel triageLevel, Pageable pageable);
 }

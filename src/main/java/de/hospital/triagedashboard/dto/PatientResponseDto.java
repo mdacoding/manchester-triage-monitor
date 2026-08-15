@@ -27,4 +27,5 @@ public class PatientResponseDto {
     private LocalDateTime admissionTime;
     private LocalDateTime estimatedTreatmentTime;
     private boolean isArchived;
+    private LocalDateTime archivedAt;
 }

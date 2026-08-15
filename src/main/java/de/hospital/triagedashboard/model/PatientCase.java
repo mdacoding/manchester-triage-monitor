@@ -63,4 +63,12 @@ public class PatientCase {
     @Column(name = "is_archived", nullable = false)
     @Builder.Default
     private boolean isArchived = false;
+
+    /**
+     * Zeitpunkt der Archivierung (Entlassung/Verlegung), {@code null} solange
+     * der Fall aktiv ist. Grundlage für die Sortierung der Historien-Ansicht
+     * (neueste Archivierung zuerst) – siehe {@code TriageQueueService#getArchivedHistory}.
+     */
+    @Column(name = "archived_at")
+    private LocalDateTime archivedAt;
 }

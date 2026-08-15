@@ -5,6 +5,8 @@ import de.hospital.triagedashboard.model.TriageLevel;
 import de.hospital.triagedashboard.repository.PatientCaseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,8 +132,28 @@ public class TriageQueueService {
                         "Patientenfall nicht gefunden: id=" + caseId));
 
         existingCase.setArchived(true);
+        existingCase.setArchivedAt(LocalDateTime.now());
         patientCaseRepository.save(existingCase);
         log.info("Patientenfall archiviert: id={}, name='{}'",
                 existingCase.getId(), existingCase.getPatientName());
+    }
+
+    /**
+     * Liefert eine paginierte Historie aller archivierten (abgeschlossenen) Fälle,
+     * neueste Archivierung zuerst. Rein lesend – ändert nichts an der aktiven
+     * Warteliste und wird von {@link #getSortedQueue()} nicht beeinflusst.
+     *
+     * @param pageable      Seitengröße/-nummer (Sortierung wird serverseitig fest vorgegeben)
+     * @param triageLevel   Optionaler Filter auf eine einzelne Triagestufe; {@code null} = alle Stufen
+     * @return Seite mit archivierten Patientenfällen
+     */
+    @Transactional(readOnly = true)
+    public Page<PatientCase> getArchivedHistory(Pageable pageable, TriageLevel triageLevel) {
+        Page<PatientCase> page = (triageLevel == null)
+                ? patientCaseRepository.findByIsArchivedTrueOrderByArchivedAtDesc(pageable)
+                : patientCaseRepository.findByIsArchivedTrueAndTriageLevelOrderByArchivedAtDesc(triageLevel, pageable);
+        log.debug("GET history: {} archivierte Faelle (Seite {}/{}, Filter={})",
+                page.getNumberOfElements(), page.getNumber(), page.getTotalPages(), triageLevel);
+        return page;
     }
 }

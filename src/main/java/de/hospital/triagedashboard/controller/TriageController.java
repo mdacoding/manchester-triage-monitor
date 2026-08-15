@@ -9,6 +9,9 @@ import de.hospital.triagedashboard.service.TriageQueueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -40,6 +43,32 @@ public class TriageController {
         List<PatientCase> queue = triageQueueService.getSortedQueue();
         log.debug("GET /queue aufgerufen – {} aktive Faelle zurueckgegeben", queue.size());
         return ResponseEntity.ok(patientMapper.toDtoList(queue));
+    }
+
+    /**
+     * Liefert die Patientenhistorie/Archiv-Ansicht: alle abgeschlossenen
+     * (archivierten) Fälle, neueste Archivierung zuerst, paginiert und
+     * optional nach Triagestufe gefiltert.
+     *
+     * Rein lesend und ohne Auswirkung auf die aktive Warteliste – siehe
+     * {@link TriageQueueService#getArchivedHistory(Pageable, TriageLevel)}.
+     *
+     * @param page        0-basierte Seitennummer (Default: 0)
+     * @param size         Seitengröße (Default: 20)
+     * @param triageLevel  Optionaler Filter auf eine einzelne Triagestufe
+     */
+    @GetMapping("/history")
+    public ResponseEntity<Page<PatientResponseDto>> getArchivedHistory(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) TriageLevel triageLevel) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PatientCase> archivedPage = triageQueueService.getArchivedHistory(pageable, triageLevel);
+        log.debug("GET /history aufgerufen – Seite {} von {}, {} Faelle, Filter={}",
+                page, archivedPage.getTotalPages(), archivedPage.getNumberOfElements(), triageLevel);
+
+        return ResponseEntity.ok(archivedPage.map(patientMapper::toDto));
     }
 
     @PostMapping("/patient")

@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -260,5 +262,95 @@ class TriageQueueServiceIntegrationTest {
         assertThatThrownBy(() -> triageQueueService.updateTriageLevel(nonExistentId, TriageLevel.RED))
                 .isInstanceOf(NoSuchElementException.class)
                 .hasMessageContaining(nonExistentId.toString());
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Patientenhistorie/Archiv-Ansicht: archivierte Faelle erscheinen dort,
+    // nicht mehr aber in getSortedQueue() (siehe Test oben) – hier zusaetzlich
+    // die Sortierung (neueste Archivierung zuerst) und Pagination.
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    @DisplayName("archivePatientCase setzt archivedAt und der Fall erscheint in getArchivedHistory")
+    void archivePatientCase_setsArchivedAt_andAppearsInHistory() {
+        PatientCase activePatient = PatientCase.builder()
+                .patientName("Maria Aktiv")
+                .triageLevel(TriageLevel.GREEN)
+                .symptoms("Wundversorgung")
+                .build();
+
+        PatientCase archivedPatient = PatientCase.builder()
+                .patientName("Klaus Entlassen")
+                .triageLevel(TriageLevel.BLUE)
+                .symptoms("Routineuntersuchung abgeschlossen")
+                .build();
+
+        triageQueueService.addPatientToQueue(activePatient);
+        PatientCase savedArchived = triageQueueService.addPatientToQueue(archivedPatient);
+
+        triageQueueService.archivePatientCase(savedArchived.getId());
+
+        Page<PatientCase> history = triageQueueService.getArchivedHistory(PageRequest.of(0, 20), null);
+
+        assertThat(history.getContent()).hasSize(1);
+        PatientCase historyEntry = history.getContent().get(0);
+        assertThat(historyEntry.getPatientName()).isEqualTo("Klaus Entlassen");
+        assertThat(historyEntry.getArchivedAt())
+                .as("archivedAt muss beim Archivieren gesetzt werden")
+                .isNotNull();
+
+        // Und weiterhin nicht mehr in der aktiven Warteliste (Regressionsschutz)
+        assertThat(triageQueueService.getSortedQueue())
+                .extracting(PatientCase::getPatientName)
+                .containsExactly("Maria Aktiv");
+    }
+
+    @Test
+    @DisplayName("getArchivedHistory sortiert nach Archivierungszeitpunkt (neueste zuerst) und paginiert korrekt")
+    void getArchivedHistory_ordersByArchivedAtDesc_andPaginates() throws InterruptedException {
+        PatientCase first = triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Anna Zuerst-Archiviert").triageLevel(TriageLevel.GREEN).symptoms("Fall 1").build());
+        PatientCase second = triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Bernd Zweitens-Archiviert").triageLevel(TriageLevel.YELLOW).symptoms("Fall 2").build());
+        PatientCase third = triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Carla Zuletzt-Archiviert").triageLevel(TriageLevel.RED).symptoms("Fall 3").build());
+
+        triageQueueService.archivePatientCase(first.getId());
+        Thread.sleep(10);
+        triageQueueService.archivePatientCase(second.getId());
+        Thread.sleep(10);
+        triageQueueService.archivePatientCase(third.getId());
+
+        // Seite 1 (Groesse 2): die zwei zuletzt archivierten Faelle
+        Page<PatientCase> firstPage = triageQueueService.getArchivedHistory(PageRequest.of(0, 2), null);
+        assertThat(firstPage.getTotalElements()).isEqualTo(3);
+        assertThat(firstPage.getContent())
+                .extracting(PatientCase::getPatientName)
+                .containsExactly("Carla Zuletzt-Archiviert", "Bernd Zweitens-Archiviert");
+
+        // Seite 2: der aelteste archivierte Fall
+        Page<PatientCase> secondPage = triageQueueService.getArchivedHistory(PageRequest.of(1, 2), null);
+        assertThat(secondPage.getContent())
+                .extracting(PatientCase::getPatientName)
+                .containsExactly("Anna Zuerst-Archiviert");
+    }
+
+    @Test
+    @DisplayName("getArchivedHistory filtert optional nach Triagestufe")
+    void getArchivedHistory_filtersByTriageLevel_whenProvided() {
+        PatientCase redCase = triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Rudi Rot").triageLevel(TriageLevel.RED).symptoms("Lebensgefahr").build());
+        PatientCase greenCase = triageQueueService.addPatientToQueue(PatientCase.builder()
+                .patientName("Gustav Gruen").triageLevel(TriageLevel.GREEN).symptoms("Leichte Beschwerden").build());
+
+        triageQueueService.archivePatientCase(redCase.getId());
+        triageQueueService.archivePatientCase(greenCase.getId());
+
+        Page<PatientCase> redOnly = triageQueueService.getArchivedHistory(PageRequest.of(0, 20), TriageLevel.RED);
+
+        assertThat(redOnly.getContent())
+                .as("Nur RED-Faelle duerfen bei aktivem Filter zurueckgegeben werden")
+                .extracting(PatientCase::getPatientName)
+                .containsExactly("Rudi Rot");
     }
 }
