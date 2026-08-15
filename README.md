@@ -34,7 +34,7 @@ Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-P
 
 | Login | Triage-Warteliste (nach Dringlichkeit sortiert) |
 |---|---|
-| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
+| ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.jpg) |
 
 > Screenshots lokal erzeugen: Backend + Frontend starten (siehe [Lokales Setup](#lokales-setup)), einloggen, ein paar Demo-Patient:innen anlegen und die Bilder unter `docs/screenshots/` ablegen.
 
