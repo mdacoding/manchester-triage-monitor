@@ -12,8 +12,21 @@ Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-P
 
 ---
 
+## 🚀 Live Demo
+
+> **TODO:** Deployment noch nicht final abgeschlossen (Free-Tier-Kontoerstellung bei Neon/Render/Vercel erfordert eine manuelle Bestätigung im Browser durch den Projektinhaber). Sobald live, werden hier die echten URLs eingetragen. Siehe [Deployment (Free Tier)](#deployment-free-tier) für die exakten Setup-Schritte.
+
+| | |
+|---|---|
+| 🖥️ Frontend | _folgt (Vercel)_ |
+| ⚙️ Backend / Swagger UI | _folgt (Render)_ |
+| 👤 Demo-Zugangsdaten | `pflege` / `pflege123!` (Pflegepersonal) · `admin` / `admin123!` (Admin) |
+
+---
+
 ## Inhalt
 
+- [🚀 Live Demo](#-live-demo)
 - [Screenshots](#screenshots)
 - [Warum Manchester Triage?](#warum-manchester-triage)
 - [Features](#features)
