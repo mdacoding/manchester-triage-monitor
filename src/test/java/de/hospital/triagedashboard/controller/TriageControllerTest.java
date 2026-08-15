@@ -6,11 +6,14 @@ import de.hospital.triagedashboard.dto.PatientResponseDto;
 import de.hospital.triagedashboard.mapper.PatientMapper;
 import de.hospital.triagedashboard.model.PatientCase;
 import de.hospital.triagedashboard.model.TriageLevel;
+import de.hospital.triagedashboard.security.CustomUserDetailsService;
+import de.hospital.triagedashboard.security.JwtService;
 import de.hospital.triagedashboard.service.TriageQueueService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -28,7 +31,14 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Security-Filter sind hier bewusst deaktiviert ({@code addFilters = false}):
+ * Dieser Test prüft ausschließlich die Controller-/Mapping-Logik in Isolation.
+ * Die Authentifizierung selbst wird separat in {@link AuthControllerTest} und
+ * über die WebSocket-Integration geprüft.
+ */
 @WebMvcTest(TriageController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class TriageControllerTest {
 
     @Autowired
@@ -45,6 +55,15 @@ class TriageControllerTest {
 
     @MockBean
     private PatientMapper patientMapper;
+
+    // JwtAuthFilter (ein Filter-Bean) wird von @WebMvcTest automatisch mitgeladen,
+    // auch wenn addFilters=false die Ausführung deaktiviert – seine Abhängigkeiten
+    // müssen deshalb trotzdem als Bean vorhanden sein.
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     @DisplayName("GET /queue gibt die sortierte Warteliste als JSON zurück")
