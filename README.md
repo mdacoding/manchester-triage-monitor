@@ -14,13 +14,13 @@ Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-P
 
 ## 🚀 Live Demo
 
-> **TODO:** Deployment noch nicht final abgeschlossen (Free-Tier-Kontoerstellung bei Neon/Render/Vercel erfordert eine manuelle Bestätigung im Browser durch den Projektinhaber). Sobald live, werden hier die echten URLs eingetragen. Siehe [Deployment (Free Tier)](#deployment-free-tier) für die exakten Setup-Schritte.
-
 | | |
 |---|---|
-| 🖥️ Frontend | _folgt (Vercel)_ |
-| ⚙️ Backend / Swagger UI | _folgt (Render)_ |
+| 🖥️ Frontend | **[frontend-six-pink-37.vercel.app](https://frontend-six-pink-37.vercel.app)** |
+| ⚙️ Backend / Swagger UI | **[triage-dashboard-api-dr0z.onrender.com/swagger-ui.html](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html)** |
 | 👤 Demo-Zugangsdaten | `pflege` / `pflege123!` (Pflegepersonal) · `admin` / `admin123!` (Admin) |
+
+> **Hinweis:** Backend und Datenbank laufen auf kostenlosen Free-Tiers (Render/Neon). Nach ~15 Minuten Inaktivität "schläft" der Render-Service kurz ein – der erste Request nach einer Pause kann daher 30–50 Sekunden dauern, bis er aufwacht.
 
 ---
 
