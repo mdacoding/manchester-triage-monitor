@@ -42,7 +42,7 @@ export function LoginForm() {
             <span className="text-white text-sm font-bold tracking-tight">T</span>
           </div>
           <h1 className="text-[16px] font-semibold text-stone-900">Triage Dashboard</h1>
-          <p className="text-[12px] text-stone-400 mt-0.5">Anmeldung erforderlich</p>
+          <p className="text-[12px] text-stone-500 mt-0.5">Anmeldung erforderlich</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-6">
@@ -81,7 +81,7 @@ export function LoginForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 disabled:opacity-50 transition-colors mt-1"
+              className="w-full px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 active:bg-stone-950 disabled:opacity-50 transition-colors mt-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40 focus-visible:ring-offset-2"
             >
               {isSubmitting ? 'Anmelden …' : 'Anmelden'}
             </button>
@@ -90,17 +90,17 @@ export function LoginForm() {
 
         {/* Demo credentials helper — remove for a real deployment */}
         <div className="mt-5 text-center">
-          <p className="text-[11px] text-stone-400 mb-2">Demo-Zugangsdaten (Portfolio-Build):</p>
-          <div className="flex justify-center gap-2">
+          <p className="text-[11px] text-stone-500 mb-2">Demo-Zugangsdaten (Portfolio-Build):</p>
+          <div className="flex flex-wrap justify-center gap-2">
             <button
               onClick={() => fillDemo('pflege', 'pflege123!')}
-              className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors"
+              className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40"
             >
               pflege / pflege123!
             </button>
             <button
               onClick={() => fillDemo('admin', 'admin123!')}
-              className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors"
+              className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40"
             >
               admin / admin123!
             </button>

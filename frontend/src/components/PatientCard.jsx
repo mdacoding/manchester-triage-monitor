@@ -32,21 +32,21 @@ export function PatientCard({ patient, position }) {
         // Smooth entrance animation
         'animate-fade-slide-in',
         // Hover micro-interaction
-        'transition-all duration-300 ease-out',
+        'transition-all duration-300 ease-out hover:-translate-y-0.5',
       ].join(' ')}
     >
       {/* ── Queue position badge ──────────────────────────────────────── */}
-      <div className="flex items-center justify-center w-12 shrink-0 bg-stone-50 border-r border-stone-100">
-        <span className="text-xs font-semibold text-stone-400 tabular-nums">
+      <div className="flex items-center justify-center w-10 sm:w-12 shrink-0 bg-stone-50 border-r border-stone-100">
+        <span className="text-xs font-semibold text-stone-500 tabular-nums">
           #{position}
         </span>
       </div>
 
       {/* ── Main content ─────────────────────────────────────────────── */}
-      <div className="flex flex-col justify-between flex-1 px-5 py-4 gap-3">
+      <div className="flex flex-col justify-between flex-1 min-w-0 px-4 sm:px-5 py-4 gap-3">
         {/* Top row: name + triage badge */}
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-[15px] font-semibold text-stone-900 leading-tight">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <h3 className="text-[15px] font-semibold text-stone-900 leading-tight break-words">
             {patient.patientName}
           </h3>
 
@@ -72,8 +72,8 @@ export function PatientCard({ patient, position }) {
         )}
 
         {/* Bottom row: time meta & actions */}
-        <div className="flex items-center justify-between pt-1 border-t border-stone-100">
-          <div className="flex items-center gap-5">
+        <div className="flex items-center justify-between gap-3 flex-wrap pt-1 border-t border-stone-100">
+          <div className="flex items-center gap-3 sm:gap-5 flex-wrap">
             <TimeMetaItem label="Ankunft"    value={arrivalTime}  />
             <TimeMetaItem label="Wartezeit"  value={waitingTime}  />
             <TimeMetaItem label="Behandlung bis" value={treatmentBy} highlight />
@@ -87,7 +87,7 @@ export function PatientCard({ patient, position }) {
                   .catch(err => console.error("Error archiving patient", err));
               }
             }}
-            className="text-[11px] font-medium text-stone-400 hover:text-stone-700 hover:bg-stone-100 px-2 py-1 rounded transition-colors"
+            className="text-[11px] font-medium text-stone-500 hover:text-stone-700 hover:bg-stone-100 px-2 py-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40"
           >
             Entlassen
           </button>
@@ -103,7 +103,7 @@ export function PatientCard({ patient, position }) {
 function TimeMetaItem({ label, value, highlight = false }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-widest text-stone-400 font-medium">
+      <span className="text-[10px] uppercase tracking-widest text-stone-500 font-medium">
         {label}
       </span>
       <span
