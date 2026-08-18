@@ -211,7 +211,7 @@ Bewusst so konfiguriert, dass die App **ohne laufende Kosten** deploybar ist:
 
 1. Neon-Projekt anlegen → Connection-String kopieren.
 2. Auf Render: „New" → „Blueprint" → dieses Repo auswählen, Branch **`main`** (Default-Branch). Im Dashboard `SPRING_DATASOURCE_URL/_USERNAME/_PASSWORD` (aus Neon) setzen. `JWT_SECRET` wird von Render automatisch generiert. CORS ist im Backend so konfiguriert, dass die Vercel-Live-URL ohne extra Env-Var funktioniert.
-3. Auf Vercel: Repo importieren, Root-Verzeichnis `frontend`, Env-Var `VITE_API_BASE_URL` auf die Render-Backend-URL setzen (z. B. `https://triage-dashboard-api-dr0z.onrender.com`).
+3. Auf Vercel: Repo importieren. Das Root-`vercel.json` baut das Frontend aus `frontend/` (kein extra Root-Directory nötig). Env-Var `VITE_API_BASE_URL` auf die Render-Backend-URL setzen, damit WebSockets den Render-Host nutzen.
 
 ## Projektstruktur
 
