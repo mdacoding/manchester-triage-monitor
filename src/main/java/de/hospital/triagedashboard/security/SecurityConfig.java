@@ -67,7 +67,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedOrigins(CorsOrigins.merge(allowedOrigins));
+        // Preview-Deployments auf Vercel (eine Subdomain-Ebene) zusätzlich erlauben,
+        // ohne jedes Mal die Render-Env-Var nachziehen zu müssen.
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "https://*.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

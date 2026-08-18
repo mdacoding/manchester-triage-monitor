@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -88,5 +89,18 @@ class AuthControllerTest {
         mockMvc.perform(get("/api/triage/queue")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("CORS-Preflight von der Live-Vercel-Origin wird erlaubt")
+    void login_preflightFromVercelOrigin_allowsCors() throws Exception {
+        mockMvc.perform(options("/api/auth/login")
+                        .header("Origin", "https://manchester-triage-monitor.vercel.app")
+                        .header("Access-Control-Request-Method", "POST")
+                        .header("Access-Control-Request-Headers", "content-type"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(
+                        "Access-Control-Allow-Origin",
+                        "https://manchester-triage-monitor.vercel.app"));
     }
 }

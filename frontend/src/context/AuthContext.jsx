@@ -23,11 +23,18 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (username, password) => {
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
-    })
+    let response
+    try {
+      response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      })
+    } catch {
+      throw new Error(
+        'Backend nicht erreichbar (Netzwerk oder CORS). Bitte Seite neu laden oder später erneut versuchen.'
+      )
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))

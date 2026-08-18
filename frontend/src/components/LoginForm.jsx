@@ -29,9 +29,18 @@ export function LoginForm() {
     }
   }
 
-  const fillDemo = (demoUsername, demoPassword) => {
+  const fillDemo = async (demoUsername, demoPassword) => {
     setUsername(demoUsername)
     setPassword(demoPassword)
+    setIsSubmitting(true)
+    setErrorMsg(null)
+    try {
+      await login(demoUsername, demoPassword)
+    } catch (err) {
+      setErrorMsg(err.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -93,12 +102,16 @@ export function LoginForm() {
           <p className="text-[11px] text-stone-500 mb-2">Demo-Zugangsdaten (Portfolio-Build):</p>
           <div className="flex flex-wrap justify-center gap-2">
             <button
+              type="button"
+              disabled={isSubmitting}
               onClick={() => fillDemo('pflege', 'pflege123!')}
               className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40"
             >
               pflege / pflege123!
             </button>
             <button
+              type="button"
+              disabled={isSubmitting}
               onClick={() => fillDemo('admin', 'admin123!')}
               className="text-[11px] font-medium text-stone-500 hover:text-stone-900 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-900/40"
             >
