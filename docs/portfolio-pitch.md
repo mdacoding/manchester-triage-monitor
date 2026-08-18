@@ -61,4 +61,4 @@ Diese Erfahrung hat den Blick dafür geschärft, wie leicht sich Persistenz-Deta
 
 **Tech-Stack:** Java 21, Spring Boot 3.3 (WebSocket/STOMP, Security, Data JPA, Actuator), PostgreSQL 16, Flyway, JWT, React 19, Vite, Tailwind CSS, Docker, GitHub Actions
 
-**Links:** [Live-Demo](https://manchester-triage-monitor.vercel.app) · [Backend/Swagger UI](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html) · [GitHub-Repository](https://github.com/mdacoding/manchester-triage-monitor)
+**Links:** [Live-Demo](https://manchester-triage-monitor.vercel.app) · [Backend/Swagger UI](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui/index.html) · [GitHub-Repository](https://github.com/mdacoding/manchester-triage-monitor)

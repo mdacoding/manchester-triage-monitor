@@ -17,7 +17,7 @@ Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-P
 | | |
 |---|---|
 | 🖥️ Frontend | **[manchester-triage-monitor.vercel.app](https://manchester-triage-monitor.vercel.app)** |
-| ⚙️ Backend / Swagger UI | **[triage-dashboard-api-dr0z.onrender.com/swagger-ui.html](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html)** |
+| ⚙️ Backend / Swagger UI | **[triage-dashboard-api-dr0z.onrender.com/swagger-ui/index.html](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui/index.html)** |
 | 👤 Demo-Zugangsdaten | `pflege` / `pflege123!` (Pflegepersonal) · `admin` / `admin123!` (Admin) |
 
 > **Hinweis:** Backend und Datenbank laufen auf kostenlosen Free-Tiers (Render/Neon). Nach ~15 Minuten Inaktivität "schläft" der Render-Service kurz ein – der erste Request nach einer Pause kann daher 30–50 Sekunden dauern, bis er aufwacht.

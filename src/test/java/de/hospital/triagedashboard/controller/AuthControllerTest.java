@@ -92,6 +92,13 @@ class AuthControllerTest {
     }
 
     @Test
+    @DisplayName("GET /swagger-ui.html ist ohne Token erreichbar")
+    void swaggerUi_withoutToken_isPublic() throws Exception {
+        mockMvc.perform(get("/swagger-ui.html"))
+                .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
     @DisplayName("CORS-Preflight von der Live-Vercel-Origin wird erlaubt")
     void login_preflightFromVercelOrigin_allowsCors() throws Exception {
         mockMvc.perform(options("/api/auth/login")
