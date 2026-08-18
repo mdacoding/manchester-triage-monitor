@@ -1,10 +1,19 @@
 /**
- * Base URL for the backend API/WebSocket.
+ * REST vs WebSocket base URLs.
  *
- * Empty string in local dev (requests stay relative and go through the Vite
- * dev proxy defined in vite.config.js). In production (e.g. a Vercel-hosted
- * frontend talking to a separately-deployed Render backend), set
- * VITE_API_BASE_URL to the full backend origin, e.g.
- * "https://triage-dashboard-api.onrender.com".
+ * REST is always same-origin (`''`):
+ *   – local: Vite proxy `/api` → localhost:8080 (vite.config.js)
+ *   – prod:  Vercel rewrite `/api` → Render (vercel.json)
+ * Same-origin requests skip browser CORS, so Login nicht an einer
+ * veralteten Render-CORS-Liste scheitert.
+ *
+ * WebSockets kann Vercel nicht proxyen. In Production geht SockJS
+ * deshalb direkt an das Backend (dort ist WS-CORS bereits `*`).
  */
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const configuredBackend = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+const DEFAULT_PROD_BACKEND = 'https://triage-dashboard-api-dr0z.onrender.com'
+
+export const API_BASE_URL = ''
+export const WS_BASE_URL = import.meta.env.PROD
+  ? (configuredBackend || DEFAULT_PROD_BACKEND)
+  : ''

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { UNAUTHORIZED_EVENT } from '../utils/apiClient'
-import { API_BASE_URL } from '../utils/apiBaseUrl'
+import { WS_BASE_URL } from '../utils/apiBaseUrl'
 
 /**
  * Connection states for the WebSocket lifecycle.
@@ -42,7 +42,7 @@ export function useTriageWebSocket(token) {
 
     const client = new Client({
       // SockJS-Factory erlaubt Fallback auf Long-Polling für ältere Browser
-      webSocketFactory: () => new SockJS(`${API_BASE_URL}/ws-triage`),
+      webSocketFactory: () => new SockJS(`${WS_BASE_URL}/ws-triage`),
 
       // JWT wird als nativer STOMP-Header beim CONNECT-Frame mitgeschickt
       connectHeaders: {
