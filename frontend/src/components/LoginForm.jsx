@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
+import { BACKEND_ORIGIN } from '../utils/apiBaseUrl'
 
 /**
  * LoginForm
@@ -14,11 +15,24 @@ export function LoginForm() {
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
+  const [slowHint, setSlowHint] = useState(false)
+
+  useEffect(() => {
+    // Render Free Tier aufwecken, bevor der User auf Anmelden klickt.
+    fetch(`${BACKEND_ORIGIN}/actuator/health`, { mode: 'no-cors' }).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!isSubmitting) return undefined
+    const id = setTimeout(() => setSlowHint(true), 3000)
+    return () => clearTimeout(id)
+  }, [isSubmitting])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
     setErrorMsg(null)
+    setSlowHint(false)
 
     try {
       await login(username, password)
@@ -34,6 +48,7 @@ export function LoginForm() {
     setPassword(demoPassword)
     setIsSubmitting(true)
     setErrorMsg(null)
+    setSlowHint(false)
     try {
       await login(demoUsername, demoPassword)
     } catch (err) {
@@ -94,6 +109,11 @@ export function LoginForm() {
             >
               {isSubmitting ? 'Anmelden …' : 'Anmelden'}
             </button>
+            {slowHint && (
+              <p className="text-[11px] text-stone-500 text-center">
+                Das Backend startet (Free Tier) — das kann 30–50 Sekunden dauern.
+              </p>
+            )}
           </form>
         </div>
 

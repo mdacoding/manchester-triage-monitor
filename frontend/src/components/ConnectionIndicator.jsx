@@ -14,7 +14,7 @@ export function ConnectionIndicator({ status }) {
   const config = {
     [ConnectionStatus.CONNECTED]:  { dot: 'bg-emerald-400 animate-pulse-dot', label: 'Live',         textColor: 'text-emerald-700' },
     [ConnectionStatus.CONNECTING]: { dot: 'bg-amber-400  animate-pulse-dot', label: 'Verbinde …',   textColor: 'text-amber-700'   },
-    [ConnectionStatus.ERROR]:      { dot: 'bg-red-400',                       label: 'Verbindungsfehler', textColor: 'text-red-700' },
+    [ConnectionStatus.ERROR]:      { dot: 'bg-amber-400', label: 'REST-Modus', textColor: 'text-amber-700' },
   }[status] ?? { dot: 'bg-stone-400', label: status, textColor: 'text-stone-600' }
 
   return (

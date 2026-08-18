@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getStoredAuth, setStoredAuth, clearStoredAuth } from '../utils/authStorage'
 import { UNAUTHORIZED_EVENT } from '../utils/apiClient'
-import { API_BASE_URL } from '../utils/apiBaseUrl'
 import { AuthContext } from './authContextValue'
+
+const LOGIN_TIMEOUT_MS = 45000
 
 /**
  * Provides the current auth session ({ token, username, role }) to the whole
@@ -23,17 +24,29 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (username, password) => {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), LOGIN_TIMEOUT_MS)
     let response
     try {
-      response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
+        signal: controller.signal,
       })
-    } catch {
+    } catch (err) {
+      if (err?.name === 'AbortError') {
+        throw new Error(
+          'Anmeldung dauert zu lange. Das Free-Tier-Backend startet oft 30–50 Sekunden — bitte erneut versuchen.',
+          { cause: err }
+        )
+      }
       throw new Error(
-        'Backend nicht erreichbar (Netzwerk oder CORS). Bitte Seite neu laden oder später erneut versuchen.'
+        'Backend nicht erreichbar (Netzwerk oder CORS). Bitte Seite neu laden oder später erneut versuchen.',
+        { cause: err }
       )
+    } finally {
+      clearTimeout(timeoutId)
     }
 
     if (!response.ok) {

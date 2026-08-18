@@ -14,6 +14,5 @@ const configuredBackend = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$
 const DEFAULT_PROD_BACKEND = 'https://triage-dashboard-api-dr0z.onrender.com'
 
 export const API_BASE_URL = ''
-export const WS_BASE_URL = import.meta.env.PROD
-  ? (configuredBackend || DEFAULT_PROD_BACKEND)
-  : ''
+export const BACKEND_ORIGIN = configuredBackend || DEFAULT_PROD_BACKEND
+export const WS_BASE_URL = import.meta.env.PROD ? BACKEND_ORIGIN : ''

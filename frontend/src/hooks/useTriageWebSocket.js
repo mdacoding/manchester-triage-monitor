@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { UNAUTHORIZED_EVENT } from '../utils/apiClient'
 import { WS_BASE_URL } from '../utils/apiBaseUrl'
 
 /**
@@ -72,9 +71,9 @@ export function useTriageWebSocket(token) {
       onStompError: (frame) => {
         console.error('[TriageWS] STOMP-Fehler:', frame)
         setConnectionStatus(ConnectionStatus.ERROR)
-        // Ein abgelehntes CONNECT (z. B. abgelaufenes Token) ist üblicherweise
-        // ein Auth-Problem — Session beenden statt endlos neu zu verbinden.
-        window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
+        // Kein Logout: ein CORS-/Netzwerkfehler beim Handshake darf die
+        // frisch aufgebaute Session nicht wieder verwerfen. REST bleibt
+        // same-origin über den Vercel-Proxy nutzbar.
       },
 
       onWebSocketError: (event) => {

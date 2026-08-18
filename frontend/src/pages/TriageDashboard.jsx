@@ -46,18 +46,39 @@ export function TriageDashboard() {
   // One-off fetch on mount to bridge the gap before the WebSocket delivers its
   // first push — not a store subscription, so setState here is intentional.
   useEffect(() => {
+    let cancelled = false
     apiFetch('/api/triage/queue')
       .then((res) => res.json())
       .then((data) => {
+        if (cancelled) return
         setDisplayQueue(data)
         setLastUpdated(new Date())
         setIsInitialLoading(false)
       })
       .catch((err) => {
         console.error('[Dashboard] Initialer Abruf fehlgeschlagen:', err)
-        setIsInitialLoading(false)
+        if (!cancelled) setIsInitialLoading(false)
       })
+    return () => {
+      cancelled = true
+    }
   }, [])
+
+  // Wenn Live-WS (CORS auf Render) fehlt: Warteliste per REST weiter aktualisieren.
+  useEffect(() => {
+    if (connectionStatus === ConnectionStatus.CONNECTED) return undefined
+    const id = setInterval(() => {
+      apiFetch('/api/triage/queue')
+        .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+        .then((data) => {
+          setDisplayQueue(data)
+          setLastUpdated(new Date())
+          setIsInitialLoading(false)
+        })
+        .catch(() => {})
+    }, 8000)
+    return () => clearInterval(id)
+  }, [connectionStatus])
 
   // ── Live WebSocket updates ───────────────────────────────────────────────
   // Mirrors the external WebSocket store (wsQueue) into local display state.
