@@ -39,6 +39,9 @@ public interface PatientCaseRepository extends JpaRepository<PatientCase, UUID> 
      */
     long countByTriageLevelAndIsArchivedFalse(TriageLevel triageLevel);
 
+    /** Anzahl aktiver (nicht archivierter) Fälle – für Demo-Seeding. */
+    long countByIsArchivedFalse();
+
     /**
      * Liefert alle archivierten Fälle für die Historien-Ansicht, paginiert
      * und nach Archivierungszeitpunkt absteigend (neueste zuerst) sortiert.
