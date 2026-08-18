@@ -16,7 +16,7 @@ Full-Stack-Portfolioprojekt: **Spring Boot 3 / Java 21** Backend mit WebSocket-P
 
 | | |
 |---|---|
-| 🖥️ Frontend | **[frontend-six-pink-37.vercel.app](https://frontend-six-pink-37.vercel.app)** |
+| 🖥️ Frontend | **[manchester-triage-monitor.vercel.app](https://manchester-triage-monitor.vercel.app)** |
 | ⚙️ Backend / Swagger UI | **[triage-dashboard-api-dr0z.onrender.com/swagger-ui.html](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html)** |
 | 👤 Demo-Zugangsdaten | `pflege` / `pflege123!` (Pflegepersonal) · `admin` / `admin123!` (Admin) |
 
