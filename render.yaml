@@ -28,4 +28,4 @@ services:
       - key: DEMO_ADMIN_PASSWORD
         sync: false
       - key: CORS_ALLOWED_ORIGINS
-        sync: false # z. B. https://triage-dashboard.vercel.app
+        sync: false # optional; Backend erlaubt Vercel/localhost auch ohne diese Var

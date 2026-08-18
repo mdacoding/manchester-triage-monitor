@@ -192,7 +192,7 @@ Die Backend-Testsuite deckt u. a. die klinische Sortierlogik, Authentifizierung/
 
 ## CI/CD
 
-Jeder Push/PR auf `main` triggert zwei parallele Jobs in GitHub Actions (`.github/workflows/ci.yml`), ausschließlich auf dem kostenlosen `ubuntu-latest`-Runner:
+Jeder Push/PR auf `main` oder `master` triggert zwei parallele Jobs in GitHub Actions (`.github/workflows/ci.yml`), ausschließlich auf dem kostenlosen `ubuntu-latest`-Runner:
 
 - **Backend** – `mvn verify` mit JDK 21
 - **Frontend** – `npm ci`, `npm run lint`, `npm run build` mit Node 22
@@ -210,9 +210,8 @@ Bewusst so konfiguriert, dass die App **ohne laufende Kosten** deploybar ist:
 **Setup:**
 
 1. Neon-Projekt anlegen → Connection-String kopieren.
-2. Auf Render: „New" → „Blueprint" → dieses Repo auswählen (nutzt `render.yaml`). Im Dashboard `SPRING_DATASOURCE_URL/_USERNAME/_PASSWORD` (aus Neon) sowie `CORS_ALLOWED_ORIGINS` (die spätere Vercel-URL) setzen. `JWT_SECRET` wird von Render automatisch generiert.
-3. Auf Vercel: Repo importieren, Root-Verzeichnis `frontend`, Env-Var `VITE_API_BASE_URL` auf die Render-Backend-URL setzen.
-4. Nach dem ersten Deploy: `CORS_ALLOWED_ORIGINS` in Render auf die finale Vercel-URL aktualisieren.
+2. Auf Render: „New" → „Blueprint" → dieses Repo auswählen, Branch **`main`** (Default-Branch). Im Dashboard `SPRING_DATASOURCE_URL/_USERNAME/_PASSWORD` (aus Neon) setzen. `JWT_SECRET` wird von Render automatisch generiert. CORS ist im Backend so konfiguriert, dass die Vercel-Live-URL ohne extra Env-Var funktioniert.
+3. Auf Vercel: Repo importieren, Root-Verzeichnis `frontend`, Env-Var `VITE_API_BASE_URL` auf die Render-Backend-URL setzen (z. B. `https://triage-dashboard-api-dr0z.onrender.com`).
 
 ## Projektstruktur
 

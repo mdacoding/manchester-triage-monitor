@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -67,12 +68,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(CorsOrigins.merge(allowedOrigins));
-        // Preview-Deployments auf Vercel (eine Subdomain-Ebene) zusätzlich erlauben,
-        // ohne jedes Mal die Render-Env-Var nachziehen zu müssen.
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "https://*.vercel.app"));
+        List<String> patterns = new ArrayList<>(CorsOrigins.merge(allowedOrigins));
+        // "*" echo't die Request-Origin zurück und funktioniert mit
+        // allowCredentials (im Gegensatz zu allowedOrigins("*")).
+        // Damit bleibt Login auch nach einem Vercel-Rename funktionsfähig.
+        if (!patterns.contains("*")) {
+            patterns.add("*");
+        }
+        configuration.setAllowedOriginPatterns(patterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

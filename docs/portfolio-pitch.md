@@ -16,7 +16,7 @@ Der interessanteste Teil war nicht das Feature-Bauen, sondern ein Bug, den ich b
 
 Komplett kostenlos deployed (Vercel + Render + Neon, Free Tier) – Code, Tests, CI und Doku öffentlich auf GitHub.
 
-🔗 Live-Demo: https://frontend-six-pink-37.vercel.app
+🔗 Live-Demo: https://manchester-triage-monitor.vercel.app
 🔗 Code: https://github.com/mdacoding/manchester-triage-monitor
 
 #SoftwareEngineering #SpringBoot #React #FullStack #HealthTech
@@ -29,7 +29,7 @@ Komplett kostenlos deployed (Vercel + Render + Neon, Free Tier) – Code, Tests,
 
 **Stack:** Java 21 · Spring Boot 3 · Spring Security · WebSocket/STOMP · PostgreSQL · React 19 · Vite · Tailwind · Docker · GitHub Actions
 
-[Live-Demo](https://frontend-six-pink-37.vercel.app) · [GitHub](https://github.com/mdacoding/manchester-triage-monitor)
+[Live-Demo](https://manchester-triage-monitor.vercel.app) · [GitHub](https://github.com/mdacoding/manchester-triage-monitor)
 
 ---
 
@@ -61,4 +61,4 @@ Diese Erfahrung hat den Blick dafür geschärft, wie leicht sich Persistenz-Deta
 
 **Tech-Stack:** Java 21, Spring Boot 3.3 (WebSocket/STOMP, Security, Data JPA, Actuator), PostgreSQL 16, Flyway, JWT, React 19, Vite, Tailwind CSS, Docker, GitHub Actions
 
-**Links:** [Live-Demo](https://frontend-six-pink-37.vercel.app) · [Backend/Swagger UI](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html) · [GitHub-Repository](https://github.com/mdacoding/manchester-triage-monitor)
+**Links:** [Live-Demo](https://manchester-triage-monitor.vercel.app) · [Backend/Swagger UI](https://triage-dashboard-api-dr0z.onrender.com/swagger-ui.html) · [GitHub-Repository](https://github.com/mdacoding/manchester-triage-monitor)

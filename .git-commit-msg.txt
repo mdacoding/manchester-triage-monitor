@@ -1,0 +1,10 @@
+fix: Login live machen – CORS robust + Deploy-Branch main
+
+Render und GitHub CI hingen am Default-Branch main, Fixes wurden
+aber nur nach master gepusht. Deshalb blieb das Live-Backend auf
+einem Stand, der die neue Vercel-Origin per CORS blockierte
+(Failed to fetch beim Login).
+
+- CORS: Origin-Patterns inkl. Fallback "*", OPTIONS umgeht JWT-Filter
+- CI laeuft auf main und master
+- Docs/Pitch auf manchester-triage-monitor.vercel.app
