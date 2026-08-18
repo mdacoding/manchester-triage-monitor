@@ -23,6 +23,8 @@ application-local.properties
 # Logs
 *.log
 
+.git-commit-msg.txt
+
 # Frontend (has its own .gitignore, but keep root clean if run from here too)
 frontend/node_modules/
 frontend/dist/
