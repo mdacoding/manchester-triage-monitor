@@ -25,6 +25,12 @@ application-local.properties
 
 .git-commit-msg.txt
 
+# Recruiter-facing internal notes — keep local only
+lokal/
+docs/internal/
+**/*projekttexte*
+docs/portfolio-pitch.md
+
 # Frontend (has its own .gitignore, but keep root clean if run from here too)
 frontend/node_modules/
 frontend/dist/
